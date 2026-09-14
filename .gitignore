@@ -7,6 +7,9 @@
 **/__pycache__/
 *.pyc
 
+# Backups de la base real: son datos del negocio, no van al repo
+*.bak
+
 # Archivos temporales de Office
 ~$*
 
