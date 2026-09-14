@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 load_dotenv()
 from flask import Flask
@@ -57,4 +58,5 @@ def test_db():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    modo_debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="127.0.0.1", port=5000, debug=modo_debug)
