@@ -1,0 +1,18 @@
+# El Frontend es un repo aparte (conectado a Lovable / roshan-spa-dashboard)
+07 - Desarrollo/Frontend/
+
+# Backend (Python/Flask)
+07 - Desarrollo/Backend/venv/
+07 - Desarrollo/Backend/.env
+**/__pycache__/
+*.pyc
+
+# Archivos temporales de Office
+~$*
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
