@@ -9,7 +9,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Menu } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -135,6 +136,7 @@ function Shell() {
   const { usuario, listo } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const esLogin = pathname === "/login";
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   if (!listo) {
     return <div className="min-h-screen w-full bg-background" />;
@@ -150,11 +152,26 @@ function Shell() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <AppSidebar />
-      <main className="min-w-0 flex-1 px-10 py-8">
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </main>
+      <AppSidebar open={menuAbierto} onClose={() => setMenuAbierto(false)} />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Barra superior: solo visible en celular/tablet, para abrir el menú */}
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3 md:hidden">
+          <button
+            aria-label="Abrir menú"
+            onClick={() => setMenuAbierto(true)}
+            className="rounded-md p-1.5 text-muted-foreground hover:text-primary"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <p className="font-display text-lg text-gold-gradient">Roshan</p>
+        </div>
+
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-10 md:py-8">
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

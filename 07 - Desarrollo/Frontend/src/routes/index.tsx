@@ -257,8 +257,11 @@ function Agenda() {
         />
       </div>
 
-      <div className="panel-luxe overflow-hidden rounded-xl">
-        <div className="grid" style={{ gridTemplateColumns: `80px repeat(${dias.length}, 1fr)` }}>
+      <div className="panel-luxe overflow-x-auto rounded-xl">
+        <div
+          className="grid"
+          style={{ gridTemplateColumns: `80px repeat(${dias.length}, minmax(96px, 1fr))` }}
+        >
           <div className="border-b border-r border-border px-3 py-4" />
           {dias.map((dia) => (
             <div

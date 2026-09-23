@@ -12,13 +12,13 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex items-end justify-between gap-6 border-b border-border pb-6">
+    <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6 sm:gap-6">
       <div>
         <p className="text-[0.65rem] uppercase tracking-[0.4em] text-primary/70">{eyebrow}</p>
-        <h1 className="mt-2 text-4xl font-normal">{title}</h1>
+        <h1 className="mt-2 text-3xl font-normal sm:text-4xl">{title}</h1>
         <p className="mt-2 max-w-xl text-sm text-muted-foreground">{description}</p>
       </div>
-      {actions ? <div className="flex shrink-0 gap-3">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
     </header>
   );
 }
