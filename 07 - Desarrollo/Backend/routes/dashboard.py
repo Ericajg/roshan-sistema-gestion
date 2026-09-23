@@ -3,8 +3,6 @@ from database import get_connection
 from routes.auth_middleware import login_requerido
 
 
-
-
 dashboard_bp = Blueprint("dashboard", __name__)
 
 
@@ -23,7 +21,7 @@ def obtener_dashboard():
         cursor.execute("""
             SELECT COUNT(*)
             FROM turno
-            WHERE fecha = CAST(GETDATE() AS DATE)
+            WHERE fecha = CURRENT_DATE
         """)
         turnos_hoy = cursor.fetchone()[0]
 
@@ -56,13 +54,13 @@ def obtener_dashboard():
         parametros = []
 
         if desde and hasta:
-            sql_ingresos += " WHERE fecha BETWEEN ? AND ?"
+            sql_ingresos += " WHERE fecha BETWEEN %s AND %s"
             parametros = [desde, hasta]
         elif desde:
-            sql_ingresos += " WHERE fecha >= ?"
+            sql_ingresos += " WHERE fecha >= %s"
             parametros = [desde]
         elif hasta:
-            sql_ingresos += " WHERE fecha <= ?"
+            sql_ingresos += " WHERE fecha <= %s"
             parametros = [hasta]
 
         cursor.execute(sql_ingresos, parametros)
@@ -97,7 +95,7 @@ def obtener_dashboard():
         cursor.execute("""
             SELECT COUNT(*)
             FROM servicio
-            WHERE estado = 1
+            WHERE estado = TRUE
         """)
         servicios = cursor.fetchone()[0]
 

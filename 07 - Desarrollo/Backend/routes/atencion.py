@@ -31,7 +31,7 @@ def obtener_atencion(id_turno):
                 ON t.id_cliente = c.id_cliente
             INNER JOIN servicio s
                 ON t.id_servicio = s.id_servicio
-            WHERE a.id_turno = ?
+            WHERE a.id_turno = %s
         """, (id_turno,))
 
         fila = cursor.fetchone()
@@ -74,7 +74,7 @@ def crear_atencion(id_turno):
         cursor.execute("""
             SELECT id_turno, estado
             FROM turno
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         turno = cursor.fetchone()
@@ -96,7 +96,7 @@ def crear_atencion(id_turno):
         cursor.execute("""
             SELECT id_atencion
             FROM atencion
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         if cursor.fetchone():
@@ -112,8 +112,8 @@ def crear_atencion(id_turno):
                 id_turno,
                 observaciones
             )
-            OUTPUT INSERTED.id_atencion
-            VALUES (?, ?)
+            VALUES (%s, %s)
+            RETURNING id_atencion
         """, (
             id_turno,
             observaciones
@@ -125,7 +125,7 @@ def crear_atencion(id_turno):
         cursor.execute("""
             UPDATE turno
             SET estado = 'Realizado'
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         connection.commit()
@@ -159,7 +159,7 @@ def actualizar_atencion(id_turno):
         cursor.execute("""
             SELECT id_atencion
             FROM atencion
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         atencion = cursor.fetchone()
@@ -172,8 +172,8 @@ def actualizar_atencion(id_turno):
 
         cursor.execute("""
             UPDATE atencion
-            SET observaciones = ?
-            WHERE id_turno = ?
+            SET observaciones = %s
+            WHERE id_turno = %s
         """, (
             observaciones,
             id_turno

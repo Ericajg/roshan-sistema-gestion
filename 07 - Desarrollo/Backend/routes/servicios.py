@@ -26,7 +26,7 @@ def obtener_servicios():
                     descripcion,
                     estado
                 FROM servicio
-                WHERE estado = 1
+                WHERE estado = TRUE
                 ORDER BY nombre
             """)
         else:
@@ -81,7 +81,7 @@ def obtener_servicio(id_servicio):
                 descripcion,
                 estado
             FROM servicio
-            WHERE id_servicio = ?
+            WHERE id_servicio = %s
         """, (id_servicio,))
 
         fila = cursor.fetchone()
@@ -137,10 +137,12 @@ def crear_servicio():
         cursor = connection.cursor()
 
         # Verificar que no exista otro servicio con el mismo nombre
+        # (case-insensitive y sin distinguir acentos, como hacía la
+        # collation Modern_Spanish_CI_AI en SQL Server)
         cursor.execute("""
             SELECT id_servicio
             FROM servicio
-            WHERE nombre COLLATE Modern_Spanish_CI_AI = ?
+            WHERE lower(unaccent(nombre)) = lower(unaccent(%s))
         """, (nombre,))
 
         servicio_existente = cursor.fetchone()
@@ -159,7 +161,8 @@ def crear_servicio():
                 duracion,
                 descripcion
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id_servicio
         """, (
             nombre,
             precio,
@@ -167,9 +170,7 @@ def crear_servicio():
             descripcion
         ))
 
-        id_servicio = cursor.execute(
-            "SELECT SCOPE_IDENTITY()"
-        ).fetchone()[0]
+        id_servicio = cursor.fetchone()[0]
 
         connection.commit()
 
@@ -215,7 +216,7 @@ def actualizar_servicio(id_servicio):
         cursor.execute("""
             SELECT id_servicio
             FROM servicio
-            WHERE id_servicio = ?
+            WHERE id_servicio = %s
         """, (id_servicio,))
 
         servicio = cursor.fetchone()
@@ -229,8 +230,8 @@ def actualizar_servicio(id_servicio):
         cursor.execute("""
             SELECT id_servicio
             FROM servicio
-            WHERE nombre COLLATE Modern_Spanish_CI_AI = ?
-              AND id_servicio <> ?
+            WHERE lower(unaccent(nombre)) = lower(unaccent(%s))
+              AND id_servicio <> %s
         """, (nombre, id_servicio))
 
         nombre_existente = cursor.fetchone()
@@ -244,11 +245,11 @@ def actualizar_servicio(id_servicio):
         cursor.execute("""
             UPDATE servicio
             SET
-                nombre = ?,
-                precio = ?,
-                duracion = ?,
-                descripcion = ?
-            WHERE id_servicio = ?
+                nombre = %s,
+                precio = %s,
+                duracion = %s,
+                descripcion = %s
+            WHERE id_servicio = %s
         """, (
             nombre,
             precio,
@@ -292,7 +293,7 @@ def cambiar_estado_servicio(id_servicio):
         cursor.execute("""
             SELECT id_servicio
             FROM servicio
-            WHERE id_servicio = ?
+            WHERE id_servicio = %s
         """, (id_servicio,))
 
         servicio = cursor.fetchone()
@@ -305,9 +306,9 @@ def cambiar_estado_servicio(id_servicio):
 
         cursor.execute("""
             UPDATE servicio
-            SET estado = ?
-            WHERE id_servicio = ?
-        """, (estado, id_servicio))
+            SET estado = %s
+            WHERE id_servicio = %s
+        """, (bool(estado), id_servicio))
 
         connection.commit()
 

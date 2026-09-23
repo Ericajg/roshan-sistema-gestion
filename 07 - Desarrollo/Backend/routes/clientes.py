@@ -61,7 +61,7 @@ def listar_clientes():
 def obtener_cliente(id_cliente):
 
     connection = get_connection()
-    try:  # <-- NUEVO
+    try:
         cursor = connection.cursor()
 
         cursor.execute("""
@@ -74,7 +74,7 @@ def obtener_cliente(id_cliente):
                 fecha_nacimiento,
                 observaciones
             FROM cliente
-            WHERE id_cliente = ?
+            WHERE id_cliente = %s
         """, (id_cliente,))
 
         fila = cursor.fetchone()
@@ -98,7 +98,7 @@ def obtener_cliente(id_cliente):
 
         return jsonify(cliente)
 
-    finally:  # <-- NUEVO
+    finally:
         cursor.close()
         connection.close()
 
@@ -123,13 +123,13 @@ def actualizar_cliente(id_cliente):
         }), 400
 
     connection = get_connection()
-    try:  # <-- NUEVO
+    try:
         cursor = connection.cursor()
 
         cursor.execute("""
             SELECT id_cliente
             FROM cliente
-            WHERE id_cliente = ?
+            WHERE id_cliente = %s
         """, (id_cliente,))
 
         cliente = cursor.fetchone()
@@ -143,8 +143,8 @@ def actualizar_cliente(id_cliente):
         cursor.execute("""
             SELECT id_cliente
             FROM cliente
-            WHERE telefono = ?
-              AND id_cliente <> ?
+            WHERE telefono = %s
+              AND id_cliente <> %s
         """, (telefono, id_cliente))
 
         telefono_existente = cursor.fetchone()
@@ -158,13 +158,13 @@ def actualizar_cliente(id_cliente):
         cursor.execute("""
             UPDATE cliente
             SET
-                nombre = ?,
-                apellido = ?,
-                telefono = ?,
-                email = ?,
-                fecha_nacimiento = ?,
-                observaciones = ?
-            WHERE id_cliente = ?
+                nombre = %s,
+                apellido = %s,
+                telefono = %s,
+                email = %s,
+                fecha_nacimiento = %s,
+                observaciones = %s
+            WHERE id_cliente = %s
         """, (
             nombre,
             apellido,
@@ -183,7 +183,7 @@ def actualizar_cliente(id_cliente):
             "id_cliente": id_cliente
         })
 
-    finally:  # <-- NUEVO
+    finally:
         cursor.close()
         connection.close()
 
@@ -193,7 +193,7 @@ def actualizar_cliente(id_cliente):
 def obtener_historial_cliente(id_cliente):
 
     connection = get_connection()
-    try:  # <-- NUEVO
+    try:
         cursor = connection.cursor()
 
         cursor.execute("""
@@ -203,7 +203,7 @@ def obtener_historial_cliente(id_cliente):
                 apellido,
                 telefono
             FROM cliente
-            WHERE id_cliente = ?
+            WHERE id_cliente = %s
         """, (id_cliente,))
 
         cliente = cursor.fetchone()
@@ -227,7 +227,7 @@ def obtener_historial_cliente(id_cliente):
             FROM turno t
             INNER JOIN servicio s
                 ON t.id_servicio = s.id_servicio
-            WHERE t.id_cliente = ?
+            WHERE t.id_cliente = %s
             ORDER BY t.fecha DESC, t.hora DESC
         """, (id_cliente,))
 
@@ -240,7 +240,7 @@ def obtener_historial_cliente(id_cliente):
             cursor.execute("""
                 SELECT COALESCE(SUM(monto), 0)
                 FROM pago
-                WHERE id_turno = ?
+                WHERE id_turno = %s
             """, (fila.id_turno,))
 
             total_pagado = float(cursor.fetchone()[0])
@@ -248,7 +248,7 @@ def obtener_historial_cliente(id_cliente):
             cursor.execute("""
                 SELECT observaciones
                 FROM atencion
-                WHERE id_turno = ?
+                WHERE id_turno = %s
             """, (fila.id_turno,))
 
             atencion = cursor.fetchone()
@@ -278,7 +278,7 @@ def obtener_historial_cliente(id_cliente):
             "historial": historial
         })
 
-    finally:  # <-- NUEVO
+    finally:
         cursor.close()
         connection.close()
 
@@ -304,13 +304,13 @@ def crear_cliente():
         }), 400
 
     connection = get_connection()
-    try:  # <-- NUEVO
+    try:
         cursor = connection.cursor()
 
         cursor.execute("""
             SELECT id_cliente
             FROM cliente
-            WHERE telefono = ?
+            WHERE telefono = %s
         """, (telefono,))
 
         telefono_existente = cursor.fetchone()
@@ -324,8 +324,8 @@ def crear_cliente():
         cursor.execute("""
             INSERT INTO cliente
                 (nombre, apellido, telefono, email, fecha_nacimiento, observaciones)
-            OUTPUT INSERTED.id_cliente
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id_cliente
         """, (
             nombre,
             apellido,
@@ -345,7 +345,7 @@ def crear_cliente():
             "id_cliente": nuevo_id
         }), 201
 
-    finally:  # <-- NUEVO
+    finally:
         cursor.close()
         connection.close()
 
@@ -365,7 +365,7 @@ def buscar_clientes():
     patron = f"%{query}%"
 
     connection = get_connection()
-    try:  # <-- NUEVO
+    try:
         cursor = connection.cursor()
 
         cursor.execute("""
@@ -376,9 +376,9 @@ def buscar_clientes():
                 telefono,
                 email
             FROM cliente
-            WHERE nombre LIKE ?
-               OR apellido LIKE ?
-               OR telefono LIKE ?
+            WHERE nombre ILIKE %s
+               OR apellido ILIKE %s
+               OR telefono ILIKE %s
             ORDER BY apellido, nombre
         """, (patron, patron, patron))
 
@@ -398,6 +398,6 @@ def buscar_clientes():
             "resultados": resultados
         })
 
-    finally:  # <-- NUEVO
+    finally:
         cursor.close()
         connection.close()

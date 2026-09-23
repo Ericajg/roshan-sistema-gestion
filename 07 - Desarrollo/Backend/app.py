@@ -38,7 +38,7 @@ def test_db():
         connection = get_connection()
         cursor = connection.cursor()
 
-        cursor.execute("SELECT DB_NAME()")
+        cursor.execute("SELECT current_database()")
 
         database = cursor.fetchone()[0]
 
@@ -59,4 +59,4 @@ def test_db():
 
 if __name__ == "__main__":
     modo_debug = os.environ.get("FLASK_DEBUG", "0") == "1"
-    app.run(host="127.0.0.1", port=5000, debug=modo_debug)
+    app.run(host="0.0.0.0", port=5000, debug=modo_debug)

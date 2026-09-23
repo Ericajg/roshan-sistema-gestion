@@ -25,9 +25,9 @@ def _turno_en_conflicto(cursor, fecha, hora, duracion, excluir_id_turno=None):
         SELECT t.id_turno, t.hora, s.duracion
         FROM turno t
         INNER JOIN servicio s ON t.id_servicio = s.id_servicio
-        WHERE t.fecha = ?
+        WHERE t.fecha = %s
           AND t.estado <> 'Cancelado'
-          AND t.id_turno <> ?
+          AND t.id_turno <> %s
     """, (fecha, excluir_id_turno or 0))
 
     for fila in cursor.fetchall():
@@ -48,7 +48,7 @@ def _horario_bloqueado(cursor, fecha, hora, duracion):
     inicio_nuevo, fin_nuevo = _rango(fecha, hora, duracion)
 
     cursor.execute("""
-        SELECT hora FROM bloqueo_horario WHERE fecha = ?
+        SELECT hora FROM bloqueo_horario WHERE fecha = %s
     """, (fecha,))
 
     for fila in cursor.fetchall():
@@ -96,7 +96,7 @@ def crear_turno():
         cursor = connection.cursor()
 
         cursor.execute("""
-            SELECT id_cliente FROM cliente WHERE id_cliente = ?
+            SELECT id_cliente FROM cliente WHERE id_cliente = %s
         """, (id_cliente,))
 
         if not cursor.fetchone():
@@ -106,7 +106,7 @@ def crear_turno():
             }), 404
 
         cursor.execute("""
-            SELECT id_servicio, precio, duracion FROM servicio WHERE id_servicio = ?
+            SELECT id_servicio, precio, duracion FROM servicio WHERE id_servicio = %s
         """, (id_servicio,))
 
         servicio = cursor.fetchone()
@@ -142,8 +142,8 @@ def crear_turno():
         cursor.execute("""
             INSERT INTO turno
                 (id_cliente, id_servicio, fecha, hora, estado, precio_acordado)
-            OUTPUT INSERTED.id_turno
-            VALUES (?, ?, ?, ?, 'Reservado', ?)
+            VALUES (%s, %s, %s, %s, 'Reservado', %s)
+            RETURNING id_turno
         """, (id_cliente, id_servicio, fecha, hora, precio_acordado))
 
         nuevo_id = cursor.fetchone()[0]
@@ -187,7 +187,7 @@ def obtener_turno(id_turno):
             FROM turno t
             INNER JOIN cliente c ON t.id_cliente = c.id_cliente
             INNER JOIN servicio s ON t.id_servicio = s.id_servicio
-            WHERE t.id_turno = ?
+            WHERE t.id_turno = %s
         """, (id_turno,))
 
         fila = cursor.fetchone()
@@ -256,7 +256,7 @@ def reprogramar_turno(id_turno):
             SELECT t.id_turno, t.estado, s.duracion
             FROM turno t
             INNER JOIN servicio s ON t.id_servicio = s.id_servicio
-            WHERE t.id_turno = ?
+            WHERE t.id_turno = %s
         """, (id_turno,))
 
         turno = cursor.fetchone()
@@ -287,8 +287,8 @@ def reprogramar_turno(id_turno):
 
         cursor.execute("""
             UPDATE turno
-            SET fecha = ?, hora = ?
-            WHERE id_turno = ?
+            SET fecha = %s, hora = %s
+            WHERE id_turno = %s
         """, (fecha, hora, id_turno))
 
         connection.commit()
@@ -330,7 +330,7 @@ def cambiar_estado_turno(id_turno):
         cursor = connection.cursor()
 
         cursor.execute("""
-            SELECT id_turno, estado FROM turno WHERE id_turno = ?
+            SELECT id_turno, estado FROM turno WHERE id_turno = %s
         """, (id_turno,))
 
         turno = cursor.fetchone()
@@ -343,8 +343,8 @@ def cambiar_estado_turno(id_turno):
 
         cursor.execute("""
             UPDATE turno
-            SET estado = ?
-            WHERE id_turno = ?
+            SET estado = %s
+            WHERE id_turno = %s
         """, (nuevo_estado, id_turno))
 
         connection.commit()
@@ -401,10 +401,10 @@ def listar_turnos():
         """
 
         if fecha:
-            sql += " WHERE t.fecha = ? "
+            sql += " WHERE t.fecha = %s "
             parametros = (fecha,)
         else:
-            sql += " WHERE t.fecha BETWEEN ? AND ? "
+            sql += " WHERE t.fecha BETWEEN %s AND %s "
             parametros = (desde, hasta)
 
         sql += " ORDER BY t.fecha, t.hora"

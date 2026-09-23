@@ -1,13 +1,5 @@
-import os
-
-SERVER = os.environ.get("DB_SERVER", "DESKTOP-F9AOBQE")
-DATABASE = os.environ.get("DB_NAME", "ROSHAN")
-
-CONNECTION_STRING = (
-    "DRIVER={ODBC Driver 18 for SQL Server};"
-    f"SERVER={SERVER};"
-    f"DATABASE={DATABASE};"
-    "Trusted_Connection=yes;"
-    "Encrypt=yes;"
-    "TrustServerCertificate=yes;"
-)
+# Este archivo quedó en desuso al migrar de SQL Server a PostgreSQL.
+# La conexión ahora se arma directamente en database.py a partir de la
+# variable de entorno DATABASE_URL (connection string que da Neon).
+# Se deja el archivo para no romper si algo externo lo referencia,
+# pero ya no se importa desde ningún lado del backend.

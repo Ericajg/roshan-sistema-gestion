@@ -34,7 +34,7 @@ def login():
                 usuario,
                 contraseña
             FROM usuario
-            WHERE usuario = ?
+            WHERE usuario = %s
         """, (usuario,))
 
         fila = cursor.fetchone()

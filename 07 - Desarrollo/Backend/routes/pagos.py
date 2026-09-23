@@ -41,19 +41,19 @@ def obtener_pagos():
 
         if desde and hasta:
             sql += """
-                WHERE p.fecha BETWEEN ? AND ?
+                WHERE p.fecha BETWEEN %s AND %s
             """
             parametros = [desde, hasta]
 
         elif desde:
             sql += """
-                WHERE p.fecha >= ?
+                WHERE p.fecha >= %s
             """
             parametros = [desde]
 
         elif hasta:
             sql += """
-                WHERE p.fecha <= ?
+                WHERE p.fecha <= %s
             """
             parametros = [hasta]
 
@@ -113,7 +113,7 @@ def obtener_pago(id_pago):
                 ON t.id_cliente = c.id_cliente
             INNER JOIN servicio s
                 ON t.id_servicio = s.id_servicio
-            WHERE p.id_pago = ?
+            WHERE p.id_pago = %s
         """, (id_pago,))
 
         fila = cursor.fetchone()
@@ -154,7 +154,7 @@ def obtener_pagos_turno(id_turno):
         cursor.execute("""
             SELECT id_turno
             FROM turno
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         if not cursor.fetchone():
@@ -172,7 +172,7 @@ def obtener_pagos_turno(id_turno):
                 fecha,
                 monto
             FROM pago
-            WHERE id_turno = ?
+            WHERE id_turno = %s
             ORDER BY fecha, id_pago
         """, (id_turno,))
 
@@ -268,7 +268,7 @@ def crear_pago():
         cursor.execute("""
             SELECT id_turno, precio_acordado
             FROM turno
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         turno = cursor.fetchone()
@@ -285,7 +285,7 @@ def crear_pago():
         cursor.execute("""
             SELECT COALESCE(SUM(monto), 0)
             FROM pago
-            WHERE id_turno = ?
+            WHERE id_turno = %s
         """, (id_turno,))
 
         total_pagado = float(cursor.fetchone()[0])
@@ -310,8 +310,8 @@ def crear_pago():
                 fecha,
                 monto
             )
-            OUTPUT INSERTED.id_pago
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id_pago
         """, (
             id_turno,
             tipo_pago,
